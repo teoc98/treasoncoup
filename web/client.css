@@ -171,6 +171,9 @@ div.chat {
 .dead-player {
     color: #aaa;
 }
+.offline-player {
+    color: #a00;
+}
 .history-group {
     padding: 0;
 }

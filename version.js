@@ -8,7 +8,8 @@ var contentPromise = null;
 
 // This is not used in production. Instead, the post-receive hook creates a static version.js.
 module.exports = function (req, res) {
-    let content = `window.server = "${server}";`
+    // let content = `window.server = "${server}";`
+    let content = `window.server = "camelByte";`
     if (contentPromise == null) {
         contentPromise = new Promise(function (resolve, reject) {
             exec('git describe --tags --long', {cwd: __dirname}, function (err, stdout) {
