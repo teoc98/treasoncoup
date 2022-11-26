@@ -27,12 +27,12 @@ dataAccess.init(argv.db, {
 });
 
 var winston = require('winston');
-winston.add(winston.transports.File, {
+winston.add(new winston.transports.File ({
     filename: argv.log,
     maxsize: 5*1024*1024,
     zippedArchive: true,
     json: false
-});
+}));
 winston.remove(winston.transports.Console);
 winston.info('server started');
 
