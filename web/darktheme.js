@@ -8,7 +8,7 @@ if (
 
 function setTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
-  document.querySelector('html').style.filter = (theme === "dark" ? 'invert(100%)' : '');
+  // document.querySelector('html').style.filter = (theme === "dark" ? 'invert(100%)' : '');
   toggle = document.querySelector("a[id=darkmodetoggle-link]");
   if (toggle) {
     toggle.innerText = "Join the " + (theme === "dark" ? 'light' : 'dark') + " side";
