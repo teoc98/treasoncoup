@@ -1,7 +1,11 @@
 Treason Coup
 ------------
 
-A clone of the card game Coup written in Node.js. Play online at http://treason.thebrown.net.
+A clone of the card game Coup written in Node.js. Play online at [coup.alwaysdata.net](https://coup.alwaysdata.net).
+
+Differences from the original project ([github.com/octachrome/treason](https://github.com/octachrome/treason)):
+* players can rejoin a game if they disconnect;
+* dark mode 🌚
 
 To run it, checkout the source code, install Node.js (version 6 or later), and run:
 
@@ -10,7 +14,7 @@ To run it, checkout the source code, install Node.js (version 6 or later), and r
 
 Then open `http://localhost:8080` in one or more browser windows. For an explanation of how to play, see `web/rules.html`.
 
-I use BrowserStack for testing - thanks for the free account guys!
+~I use BrowserStack for testing - thanks for the free account guys!~
 
 AI
 --
