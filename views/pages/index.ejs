@@ -37,9 +37,7 @@
             </div>
             <div class="col-sm-2 icons">
                 <a id="darkmodetoggle-button" onclick="switchTheme()"><i class="fas fa-moon" title="Switch theme"></i></a>
-                <p class="profile-button" data-bind="visible: loggedIn()">
-                <a href="" data-bind="click: showUserProfileDialog"><i class="fas fa-user" title="Profile"></i></a>
-            	</p>
+                <a data-bind="visible: loggedIn(), click: showUserProfileDialog"><i class="profile-button fas fa-user" title="Profile"></i></a>
             </div>
         </div>
         <div class="row">
