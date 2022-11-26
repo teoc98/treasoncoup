@@ -2,6 +2,9 @@
     font-family: XoloniumRegular;
     src: url('XoloniumRegular.otf') format('opentype');
 }
+html[data-theme="dark"] {
+   filter: invert(100%) hue-rotate(180deg);
+}
 body, p, .tooltip {
    font-family: XoloniumRegular;
 }
