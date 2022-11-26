@@ -36,8 +36,10 @@
                 <p data-bind="text: version"></p>
             </div>
             <div class="col-sm-2 icons">
+            	<p data-bind="visible: loggedIn()">
                 <a id="darkmodetoggle-button" onclick="switchTheme()"><i class="fas fa-moon" title="Switch theme"></i></a>
-                <a data-bind="visible: loggedIn(), click: showUserProfileDialog"><i class="profile-button fas fa-user" title="Profile"></i></a>
+                <a data-bind="click: showUserProfileDialog"><i class="profile-button fas fa-user" title="Profile"></i></a>
+				</p>
             </div>
         </div>
         <div class="row">
