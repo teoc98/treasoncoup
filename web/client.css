@@ -258,4 +258,7 @@ h3 {
     text-decoration: none;
     cursor: pointer
 }
+.icons a {
+  display: inline-block;
+}
 
