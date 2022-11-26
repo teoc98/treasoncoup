@@ -11,7 +11,7 @@ function setTheme(theme) {
   document.querySelector('html').style.filter = (theme === "dark" ? 'invert(100%)' : '');
   toggle = document.querySelector("a[id=darkmodetoggle-link]");
   if (toggle) {
-    toggle.innerText = "Join the sas " + (theme === "dark" ? 'light' : 'dark') + " side";
+    toggle.innerText = "Join the " + (theme === "dark" ? 'light' : 'dark') + " side";
   }
   // Set the user's theme preference to theme
   localStorage.setItem("theme", theme);
@@ -27,6 +27,7 @@ if (currentTheme === "dark") {
   // Set the body data-theme attribute to match the local storage item
   setDark();
 }
+
 
 // Function that will switch the theme based on the if the theme toggle is checked or not
 function switchTheme() {
