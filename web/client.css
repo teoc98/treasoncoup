@@ -258,7 +258,8 @@ h3 {
     text-decoration: none;
     cursor: pointer
 }
-.icons {
+.icons a {
   display: inline-block;
+  padding: 0.5em 0.5em;
 }
 
