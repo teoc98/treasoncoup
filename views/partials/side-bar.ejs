@@ -11,7 +11,7 @@
         </div>
         <div class="row" data-bind="visible: !$root.waitingToPlay()">
             <div class="col-xs-6">
-                <span data-bind="text: name, css: { 'dead-player' : influenceCount() == 0 }"></span>
+                <span data-bind="text: name, css: { 'dead-player' : influenceCount() == 0, 'offline-player' : away() }"></span>
                 <span class="badge" data-bind="text: '$' + cash(), visible: !isObserver()"></span>
                 <span class="glyphicon glyphicon-eye-open observer" data-bind="visible: isObserver()"></span>
                 <i class="team-red" data-bind="visible: influenceCount() > 0 && team() == 1"></i>
@@ -56,5 +56,6 @@
     </li>
 </ul>
 <p><a href="rules.html" target="blank">How to play</a></p>
+<p><a onclick="switchTheme()">Join the dark side</a></p>
 <p><a href="" data-bind="click: leaveGame">Leave game</a></p>
 <p><a href="javascript:;" data-bind="visible: notifsSupported, text: notifToggleText, click: toggleNotifs"></a></p>

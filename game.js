@@ -117,19 +117,34 @@ module.exports = function createGame(options) {
             isObserver = true;
         }
 
-        var playerState = createPlayerState(playerIface, isObserver);
+        // patch to make players able to reconnect (from the same browser)
+        var playerIdx = playerIfaces.map(playerIface => playerIface.playerId).indexOf(playerIface.playerId)
+        var reusePlayer = (playerIdx != -1 && playerIface.playerId != "ai");
+        if (reusePlayer) {
+            state.players[playerIdx].away = false;
+            playerIfaces[playerIdx] = playerIface;
 
-        var playerIdx = state.players.length;
-        state.players.push(playerState);
-        playerIfaces.push(playerIface);
+            addHistory('player-joined', nextAdhocHistGroup(), state.players[playerIdx].name + ' rejoined the game' + (isObserver ? ' as an observer' : ''));
+            emitState();
 
-        state.numPlayers++;
+            var proxy = createGameProxy(playerIdx);
+            proxies[playerIdx] = proxy;
+        }
+        else {
+            var playerState = createPlayerState(playerIface, isObserver);
 
-        addHistory('player-joined', nextAdhocHistGroup(), playerState.name + ' joined the game' + (isObserver ? ' as an observer' : ''));
-        emitState();
+            var playerIdx = state.players.length;
+            state.players.push(playerState);
+            playerIfaces.push(playerIface);
 
-        var proxy = createGameProxy(playerIdx);
-        proxies.push(proxy);
+            state.numPlayers++;
+
+            addHistory('player-joined', nextAdhocHistGroup(), playerState.name + ' joined the game' + (isObserver ? ' as an observer' : ''));
+            emitState();
+
+            var proxy = createGameProxy(playerIdx);
+            proxies.push(proxy);
+        }
         return proxy;
     }
 
@@ -143,7 +158,8 @@ module.exports = function createGame(options) {
             isObserver: false,
             ai: !!playerIface.ai,
             isReady: isObserver ? 'observe' : true,
-            connected: true
+            connected: true,
+            away: false
         };
 
         return playerState;
@@ -208,9 +224,12 @@ module.exports = function createGame(options) {
             forceRemovePlayer(playerIdx);
             promoteObserverToPlayer();
         } else {
-            playerIfaces[playerIdx] = null;
-            playerState.connected = false;
-            playerState.isReady = false;
+            // playerIfaces[playerIdx] = null;
+            // playerState.connected = false;
+            playerState.away = true;
+            addHistory('player-left', nextAdhocHistGroup(), playerState.name + ' temporarily left the game');
+            emitState(true);
+            return;
             if (!playerState.isObserver) {
                 gameTracker.playerLeft(playerIdx);
                 // Reveal all the player's influence.
