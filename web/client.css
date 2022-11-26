@@ -254,3 +254,8 @@ h3 {
 .error {
     color: red;
 }
+      #darkmodetoggle-button:hover, #darkmodetoggle-button:active {
+    text-decoration: none;
+    cursor: pointer
+}
+
