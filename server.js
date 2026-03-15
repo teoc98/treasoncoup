@@ -14,12 +14,18 @@
 
 var dataAccess = require('./dataaccess-fake');
 
-var argv = require('optimist')
-    .usage('$0 [--debug] [--recreate-views] [--port <port>] [--log <logfile>] [--db <database>]')
+const argParser = require('optimist')
+    .usage('$0 [--debug] [--recreate-views] [--port <port>] [--log <logfile>] [--db <database>] [-h | --help]')
     .default('port', 8080)
     .default('log', 'treason.log')
-    .default('db', 'treason_db')
-    .argv;
+    .default('db', 'treason_db');
+
+var argv = argParser.argv;
+
+if (argv["h"] || argv["help"]) {
+	argParser.showHelp();
+	process.exit(0);
+}
 
 dataAccess.init(argv.db, {
     recreateViews: argv['recreate-views'],
