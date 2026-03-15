@@ -1255,13 +1255,9 @@ module.exports = function createGame(options) {
         } else if (actionState.action == 'steal') {
             target = state.players[actionState.target];
             addHistory('steal', curTurnHistGroup(), '{%d} stole from {%d}', playerIdx, actionState.target);
-            if (target.cash >= 2) {
-                target.cash -= 2;
-                playerState.cash += 2;
-            } else {
-                playerState.cash += target.cash;
-                target.cash = 0;
-            }
+            var stolenAmount = Math.min(2, target.cash);
+            playerState.cash += stolenAmount;
+            target.cash -= stolenAmount;
         } else if (actionState.action == 'exchange') {
             var exchangeOptions = [deck.pop()].concat(getInfluence(playerState));
             if (state.roles.indexOf('ambassador') !== -1) {
