@@ -35,6 +35,10 @@ var INITIAL_CASH = 2;
 var INFLUENCES = 2;
 
 var epithets = fs.readFileSync(__dirname + '/epithets.txt', 'utf8').split(/\r?\n/);
+var adjectives = fs.readFileSync(__dirname + '/adjectives.txt', 'utf8').split(/\r?\n/);
+const ANON_PLAYER_NAME = 'Anonymous'
+const ALWAYS_USE_EPITHETS = true;
+const USE_ADJECTIVES_FOR_ANON = true;
 
 const actionMessages = {
     'assassinate': (idx, target) => `{${idx}} attempted to assassinate {${target}}`,
@@ -103,6 +107,10 @@ module.exports = function createGame(options) {
         debug('No players joined, destroying game');
         destroyGame();
     }, 120000);
+
+    function getRandomItem(array) {
+        return array[rand(array.length)];
+    }
 
     function playerJoined(playerIface) {
         clearTimeout(reaperHandle);
@@ -181,13 +189,24 @@ module.exports = function createGame(options) {
         return 'a' + adhocHistGroup;
     }
 
-    function playerName(name) {
-        name = name || 'Anonymous';
+    function isNameDuplicate(name) {
         for (var i = 0; i < state.players.length; i++) {
             if (state.players[i].name == name) {
-                var epithet = epithets[rand(epithets.length)];
-                return playerName(name + ' ' + epithet);
+                return true;
             }
+        }
+        return false;
+    }
+
+    function playerName(name) {
+        if (!name) {
+            name = ANON_PLAYER_NAME;
+            if (USE_ADJECTIVES_FOR_ANON) {
+                name = getRandomItem(adjectives) + ' ' + name;
+            }
+        }
+        if (ALWAYS_USE_EPITHETS || isNameDuplicate(name)) {
+            name += ' ' + getRandomItem(epithets);
         }
         return name;
     }
