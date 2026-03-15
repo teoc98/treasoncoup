@@ -1098,9 +1098,15 @@ module.exports = function createGame(options) {
         else {
             proof = proveHasRole(challengedPlayer, challengedRole);
         }
-        if (proof != null) {
+
+        let isChallengeCorrect = proof == null;
+        let winnerIdx = isChallengeCorrect ? playerIdx : challengedPlayerIdx;
+        let loserIdx = isChallengeCorrect ? challengedPlayerIdx : playerIdx;
+        let message;
+
+        gameTracker.challenge(playerIdx, challengedPlayerIdx, isChallengeCorrect);
+        if (!isChallengeCorrect) {
             // There is proof - challenge lost.
-            gameTracker.challenge(playerIdx, challengedPlayerIdx, false);
 
             // Deal the challenged player replacement cards.
             let oldRoles = '';
@@ -1116,81 +1122,64 @@ module.exports = function createGame(options) {
             for (let influenceIdx of proof) {
                 challengedPlayer.influence[influenceIdx].role = deck.pop();
             }
-
-            var message = format('{%d} incorrectly challenged {%d}; {%d} exchanged %s for %s',
+            message = format('{%d} incorrectly challenged {%d}; {%d} exchanged %s for %s',
                 playerIdx, challengedPlayerIdx, challengedPlayerIdx, oldRoles,
                 proof.length == 1 ? 'a new role' : 'new roles');
-
-            // If the challenger is losing their last influence,
-            if (playerState.influenceCount <= 1) {
-                // Then the challenger is dead. Reveal an influence.
-                revealedRole = revealFirstInfluence(playerState);
-                addHistory('incorrect-challenge', curTurnHistGroup(), '%s; {%d} revealed %s', message, playerIdx, revealedRole);
-
-                endOfTurn = afterIncorrectChallenge();
-
-                afterPlayerDeath(playerIdx);
-
-                if (endOfTurn) {
-                    nextTurn();
-                }
-            } else {
-                // The action will take place after the reveal.
-                setState({
-                    name: stateNames.REVEAL_INFLUENCE,
-                    playerIdx: state.state.playerIdx,
-                    action: state.state.action,
-                    target: state.state.target,
-                    blockingRole: state.state.blockingRole,
-                    message: message,
-                    reason: 'incorrect-challenge',
-                    playerToReveal: playerIdx
-                });
-            }
         } else {
             // Player does not have role - challenge won.
-            gameTracker.challenge(playerIdx, challengedPlayerIdx, true);
-            var message = format('{%d} successfully challenged {%d}', playerIdx, challengedPlayerIdx);
+            message = format('{%d} successfully challenged {%d}', playerIdx, challengedPlayerIdx);
 
             // Refund the challenged player, if the action cost them money.
             if (state.state.name == stateNames.ACTION_RESPONSE) {
                 var cost = actions[state.state.action].cost;
-                if (cost) {
-                    challengedPlayer.cash += cost;
-                }
+                challengedPlayer.cash += cost;
+            }
+        }
+
+        // If someone assassinates you, you bluff contessa, and they challenge you, then you lose two influence: one for the assassination, one for the successful challenge.
+        const wouldLoseTwoInfluences = isChallengeCorrect
+            && state.state.name == stateNames.BLOCK_RESPONSE
+            && state.state.action == 'assassinate'
+            && state.state.target == challengedPlayerIdx;
+        const influencesLost = wouldLoseTwoInfluences ? 2 : 1;
+
+        // If the player that has lost the challenge is losing their last influence,
+        if (state.players[loserIdx].influenceCount <= 1 || wouldLoseTwoInfluences) {
+            // Then the player that has lost the challenge is dead. Reveal an influence.
+            revealedRole = revealFirstInfluence(state.players[loserIdx]);
+                addHistory(
+                    isChallengeCorrect ? 'successful-challenge' : 'incorrect-challenge',
+                    curTurnHistGroup(),
+                    '%s; {%d} revealed %s',
+                    message,
+                    loserIdx,
+                    revealedRole,
+                );
+
+            if (isChallengeCorrect && challengedPlayer.influenceCount == 0) {
+                afterPlayerDeath(challengedPlayerIdx);
             }
 
-            // If someone assassinates you, you bluff contessa, and they challenge you, then you lose two influence: one for the assassination, one for the successful challenge.
-            var wouldLoseTwoInfluences = state.state.name == stateNames.BLOCK_RESPONSE && state.state.action == 'assassinate' &&
-                state.state.target == challengedPlayerIdx;
+            endOfTurn = isChallengeCorrect ? afterSuccessfulChallenge() : afterIncorrectChallenge();
 
-            // If the challenged player is losing their last influence,
-            if (challengedPlayer.influenceCount <= 1 || wouldLoseTwoInfluences) {
-                // Then the challenged player is dead. Reveal an influence.
-                revealedRole = revealFirstInfluence(challengedPlayer);
-                addHistory('successful-challenge', curTurnHistGroup(), '%s; {%d} revealed %s', message, challengedPlayerIdx, revealedRole);
-
-                if (challengedPlayer.influenceCount == 0) {
-                    afterPlayerDeath(challengedPlayerIdx);
-                }
-
-                endOfTurn = afterSuccessfulChallenge();
-
-                if (endOfTurn) {
-                    nextTurn();
-                }
-            } else {
-                setState({
-                    name: stateNames.REVEAL_INFLUENCE,
-                    playerIdx: state.state.playerIdx,
-                    action: state.state.action,
-                    target: state.state.target,
-                    blockingRole: state.state.blockingRole,
-                    message: message,
-                    reason: 'successful-challenge',
-                    playerToReveal: challengedPlayerIdx
-                });
+            if (!isChallengeCorrect) {
+                afterPlayerDeath(playerIdx);
             }
+            if (endOfTurn) {
+                nextTurn();
+            }
+        } else {
+            // The action will take place after the reveal.
+            setState({
+                name: stateNames.REVEAL_INFLUENCE,
+                playerIdx: state.state.playerIdx,
+                action: state.state.action,
+                target: state.state.target,
+                blockingRole: state.state.blockingRole,
+                message: message,
+                reason: isChallengeCorrect ? 'successful-challenge' : 'incorrect-challenge',
+                playerToReveal: loserIdx
+            });
         }
     }
 
